@@ -1,0 +1,136 @@
+
+{% load static %}
+<!-- Apply ?version=1 to static files for developmental purposes -->
+<script src="{% static 'static_jquery/js/jquery.js'%}?version=1"></script>
+<script src="{% static '/js/dashboard-jquery.js' %}?version=1"></script>
+<script src="{% static 'js/skycons.js'%}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static '/style.css' %}?version=1">
+<body style="background-image: url({% static 'backgroundImage4.jpg' %});>
+    <!-- Focused forecast container to highlight the selected forecast card -->
+    <div class="container">  
+        <div class ="container" id="focusedForecast">
+        <div class="header-row">
+            <h1 class="selected-header">{{geoCity.city}}, {{geoCity.region}}, {{geoCity.country_name}}</h1>
+            <h1  class="selected-header" id="selectedTime"></h1>
+        </div>
+        <div class="row" id="selectedIconDiv">
+            <div class="column">
+                <canvas class="canvas-icon" id="selectedIcon" width="200" height="200"></canvas>
+                <script>
+                    var skycons = new Skycons({"color": "white"})
+                    skycons.add("selectedIcon", "Skycons.RAIN");
+                    skycons.play()
+                </script>
+            </div>
+            <div class="column">
+                <h1 class="mainDetails" id="selectedHourTime">Overview</h1>
+                <p class="mainDetails" id="selectedSummary"></p>
+                <p class="mainDetails" id="selectedTemp">Selectedtemp<span>&#176;</span></p>
+                <p class="mainDetails" id="selectedApparentTemp">Selectedtemp<span>&#176;</span></p>
+                <p class="mainDetails" id="selectedUVIndex"></p>
+                <p class="mainDetails" id="selectedCloudCover"></p>
+            </div>  
+            <div class="column">
+                <h1 class="mainDetails" id="selectedHourTime">Precipitation</h1>
+                <p class="mainDetails" id="selectedDewPoint"></p>
+                <p class="mainDetails" id="selectedHumidity"></p>
+                <p class="mainDetails" id="selectedPrecipProbability"></p>
+                <p class="mainDetails" id="selectedPrecipIntensity"></p>
+            </div>             
+            <div class="column">
+                <h1 class="mainDetails">Wind</h1>
+                <p class="mainDetails" id="selectedWindSpeed"></p>
+                <p class="mainDetails" id="selectedWindGust"></p>
+                <p class="mainDetails" id="selectedWindBearing"></p>
+            </div>               
+        </div>
+    </div>
+    <div class="row">
+        <button class="timeframe-button" id="dailyForecastBtn">Daily</button>
+        <button class="timeframe-button" id="hourly-btn">Hourly</button>
+    </div>
+    <!-- Hourly Forecast Cards -->
+    <div class="container" id="hourlyForecastCards">                                            
+        <div class="row">            
+            <button class="timeframe-button" id="prev-hour-btn">Prev Hour</button>
+            <h1 class="cards-header">Hourly Forecast</h1>
+            <button class="timeframe-button" id="next-hour-btn">Next Hour</button>
+        </div>
+        <div class="row" id="hourly-cards-row">
+            {% for hourlyForecast in forecast.hourly.data %}
+                <div class="column">
+                    <div class="card-forecast-hour" id="hourlyCard{{ forloop.counter }}">
+                        <p class="cardTime card-details">{{hourlyForecast.time|date:'D h a'}}</p>
+
+                        <canvas id="hourlyIcon{{ forloop.counter }}" width="60" height="60"></canvas>                                          
+                            <script>
+                                var skycons = new Skycons({"color": "white"})
+                                skycons.add("hourlyIcon{{ forloop.counter }}", "{{ hourlyForecast.icon}}");
+                                skycons.play()
+                            </script>
+                     
+                        <p class="cardPrecip card-details">Precip:{{hourlyForecast.precip_probability}}%</li>
+                        <p class="cardTemp card-details">{{hourlyForecast.temperature}}<span>&#176;</span>F</li>
+                        <p class="cardWindSpeed card-details">Wind Speed: {{hourlyForecast.wind_speed}}mph</p>
+                        <div class="extraDetails">
+                            <p class="cardSummary card-details">{{hourlyForecast.summary}}</p>
+                            <p class="cardDewPoint card-details">Dew Point: {{hourlyForecast.dew_point}}</p>
+                            <p class="cardHumidity card-details">Humidity: {{hourlyForecast.humidity}}</p>
+                            <p class="cardPrecipProbability card-details">Probability: {{hourlyForecast.precip_probability}}</p>
+                            <p class="cardPrecipIntensity card-details">Intensity: {{hourlyForecast.precip_intensity}}</p>
+                            <p class="cardIcon card-details">{{hourlyForecast.icon}}</p>
+                            <p class="cardWindBearing card-details">Bearing: {{hourlyForecast.wind_bearing}}<span>&#176;</span></p>
+                            <p class="cardWindGust card-details">Gust: {{hourlyForecast.wind_gust}}mph</p>
+                            <p class="cardOzone card-details">Ozone: {{hourlyForecast.ozone}}</p>
+                            <p class="cardApparentTemp card-details">Feels like: {{hourlyForecast.apparent_temperature}}<span>&#176;</span>F</p>
+                            <p class="cardCloudCover card-details">Cloud Cover: {{hourlyForecast.cloud_cover}}</p>
+                            <p class="cardUVIndex card-details">UV Index: {{hourlyForecast.uv_index}}</p>
+                        </div>
+                    </div>
+                </div>           
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Create the Daily Forecast Cards -->
+    <div class="container" id="dailyForecastCards">
+        <div class="row">
+            <h1 class="cards-header">Daily Forecast</h1>
+        </div>    
+        <div class ="row">
+            {% for dailyForecast in forecast.daily.data %}
+                    <div class ="column">
+                        <div class = "card-forecast-day" id="dailyCard{{ forloop.counter }}">
+                            <p class="cardTime card-details">{{dailyForecast.time|date:'F j, Y'}}<p>
+                            <canvas id="dailyIcon{{ forloop.counter }}" width="90" height="90" style="margin:auto"></canvas>
+                            <script>
+                                var skycons = new Skycons({"color": "white"})
+                                skycons.add("dailyIcon{{ forloop.counter }}", "{{ dailyForecast.icon}}");
+                                skycons.play()
+                            </script>
+                            <p class="cardTemp card-details"><span style="color:red">H:</span>{{dailyForecast.temperature_high}}<span>&#176;</span> <span style="color:blue">L:</span>{{dailyForecast.temperature_low}}<span>&#176;</span></p>
+                            <p class="cardPrecipProbability card-details">Probability:{{dailyForecast.precip_probability}}%</li>
+                            <p class="card-details">Wind Speed: {{dailyForecast.wind_speed}}mph</li>
+                            <div class="extraDetails">
+                            <p class="cardSummary card-details">{{dailyForecast.summary}}</p>
+                            <p class="cardDewPoint card-details">Dew Point: {{dailyForecast.dew_point}}</p>
+                            <p class="cardHumidity card-details">Humidity: {{dailyForecast.humidity}}</p>
+                            <p class="cardPrecipIntensity card-details">Intensity: {{dailyForecast.precip_intensity}}</p>
+                            <p class="cardIcon card-details">{{dailyForecast.icon}}</p>
+                            <p class="cardWindSpeed card-details">Wind Speed: {{dailyForecast.wind_speed}}mph</p>
+                            <p class="cardWindBearing card-details">Wind Bearing: {{dailyForecast.wind_bearing}}<span>&#176;</span></p>
+                            <p class="cardWindGust card-details">Wind Gust: {{dailyForecast.wind_gust}}mph</p>
+                            <p class="cardOzone card-details">Ozone: {{dailyForecast.ozone}}</p>
+                            <p class="cardApparentTemp card-details">Feels like:</br>H:{{dailyForecast.apparent_temperature_high}}<span>&#176;</span>F L:{{dailyForecast.apparent_temperature_low}}<span>&#176;</span>F </p>
+                            <p class="cardCloudCover card-details">Cloud Cover: {{dailyForecast.cloud_cover}}</p>
+                            <p class="cardUVIndex card-details">UV Index: {{dailyForecast.uv_index}}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+        </div>
+    </div>
+</body>
+
+<!-- Credit to DARK SKY -->
+<footer> <a href="https://darksky.net/poweredby/" target="_blank"><img width="128" src="{% static 'poweredByDarkSky.png' %}" class="center"></a><footer>
